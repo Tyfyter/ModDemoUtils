@@ -1,0 +1,12 @@
+DemoItemBox: {
+	Format: Input tag selector here
+	Enabled: Enabled
+	Disabled: Disabled
+}
+
+Items: {
+	GreendDesign: {
+		DisplayName: Greend Design
+		Tooltip: ""
+	}
+}

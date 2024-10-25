@@ -1,0 +1,4 @@
+displayName = Mod Demo Utilities
+author = Moonlight Glint
+version = 0.1
+modReferences = PegasusLib
