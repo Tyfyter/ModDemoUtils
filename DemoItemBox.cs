@@ -106,6 +106,11 @@ namespace ModDemoUtils {
 				packet.Send();
 			}
 		}
+		public void SyncToPlayer(int player) {
+			foreach (var item in tileEntities) {
+				UpdateTileEntity(item.Key, item.Value.text, item.Value.sortType);
+			}
+		}
 		public override void SaveWorldData(TagCompound tag) {
 			tag[$"{nameof(tileEntities)}"] = tileEntities.Select(kvp => new TagCompound {
 				["key"] = kvp.Key,

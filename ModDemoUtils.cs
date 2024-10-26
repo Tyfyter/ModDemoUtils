@@ -86,4 +86,18 @@ namespace ModDemoUtils {
 			UpdateDemoBox,
 		}
 	}
+	public class DemoSyncPlayer : ModPlayer {
+		bool dummyInitialize = false;
+		bool netInitialized = false;
+		public override void SyncPlayer(int toWho, int fromWho, bool newPlayer) {
+			if (Main.netMode == NetmodeID.Server) {
+				if (!netInitialized) {
+					Mod.Logger.Info($"NetInit {netInitialized}, {Player.name}, dummyInitialize: {dummyInitialize}");
+					netInitialized = dummyInitialize;
+					ModContent.GetInstance<DemoItemBoxSystem>().SyncToPlayer(Player.whoAmI);
+				}
+				if (!dummyInitialize) dummyInitialize = true;
+			}
+		}
+	}
 }
