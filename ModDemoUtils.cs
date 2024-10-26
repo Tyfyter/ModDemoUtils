@@ -60,7 +60,7 @@ namespace ModDemoUtils {
 			switch ((NetMessageType)reader.ReadByte()) {
 				case NetMessageType.PlaceDemoBox: {
 					Point16 pos = new(reader.ReadInt16(), reader.ReadInt16());
-					ModContent.GetInstance<DemoItemBoxSystem>().tileEntities.Add(pos, new(string.Empty));
+					ModContent.GetInstance<DemoItemBoxSystem>().tileEntities.Add(pos, new());
 					if (Main.netMode != NetmodeID.MultiplayerClient) DemoItemBoxSystem.AddTileEntity(pos);
 					break;
 				}
@@ -73,8 +73,9 @@ namespace ModDemoUtils {
 				case NetMessageType.UpdateDemoBox: {
 					Point16 pos = new(reader.ReadInt16(), reader.ReadInt16());
 					string data = reader.ReadString();
-					ModContent.GetInstance<DemoItemBoxSystem>().tileEntities[pos] = new(data);
-					if (Main.netMode != NetmodeID.MultiplayerClient) DemoItemBoxSystem.UpdateTileEntity(pos, data);
+					DemoBoxContents.SortType sortType = (DemoBoxContents.SortType)reader.ReadByte();
+					ModContent.GetInstance<DemoItemBoxSystem>().tileEntities[pos] = new(data, sortType);
+					if (Main.netMode != NetmodeID.MultiplayerClient) DemoItemBoxSystem.UpdateTileEntity(pos, data, sortType);
 					break;
 				}
 			}

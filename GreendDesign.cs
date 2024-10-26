@@ -10,6 +10,7 @@ namespace ModDemoUtils {
 	public class GreendDesign : ModItem {
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.WireKite);
+			Item.shoot = ProjectileID.None;
 		}
 	}
 }

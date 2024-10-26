@@ -14,6 +14,7 @@ using Terraria.DataStructures;
 using Terraria.ModLoader.IO;
 using Newtonsoft.Json.Linq;
 using Microsoft.Xna.Framework;
+using static ModDemoUtils.DemoBoxContents;
 
 namespace ModDemoUtils {
 	public class DemoItemBox : GlobalTile {
@@ -72,7 +73,7 @@ namespace ModDemoUtils {
 		}
 		public static void AddTileEntity(Point16 pos) {
 			if (Main.netMode == NetmodeID.SinglePlayer) {
-				ModContent.GetInstance<DemoItemBoxSystem>().tileEntities.Add(pos, new(string.Empty));
+				ModContent.GetInstance<DemoItemBoxSystem>().tileEntities.Add(pos, new());
 			} else {
 				ModPacket packet = ModContent.GetInstance<ModDemoUtils>().GetPacket();
 				packet.Write((byte)ModDemoUtils.NetMessageType.PlaceDemoBox);
@@ -92,29 +93,38 @@ namespace ModDemoUtils {
 				packet.Send();
 			}
 		}
-		public static void UpdateTileEntity(Point16 pos, string data) {
+		public static void UpdateTileEntity(Point16 pos, string data, SortType sortType) {
 			if (Main.netMode == NetmodeID.SinglePlayer) {
-				ModContent.GetInstance<DemoItemBoxSystem>().tileEntities[pos] = new(data);
+				ModContent.GetInstance<DemoItemBoxSystem>().tileEntities[pos] = new(data, sortType);
 			} else {
 				ModPacket packet = ModContent.GetInstance<ModDemoUtils>().GetPacket();
 				packet.Write((byte)ModDemoUtils.NetMessageType.UpdateDemoBox);
 				packet.Write((short)pos.X);
 				packet.Write((short)pos.Y);
 				packet.Write((string)data);
+				packet.Write((byte)sortType);
 				packet.Send();
 			}
 		}
 		public override void SaveWorldData(TagCompound tag) {
-			tag[$"{nameof(tileEntities)}_key"] = tileEntities.Keys.ToList();
-			tag[$"{nameof(tileEntities)}_value"] = tileEntities.Values.Select(d => d.text).ToList();
+			tag[$"{nameof(tileEntities)}"] = tileEntities.Select(kvp => new TagCompound {
+				["key"] = kvp.Key,
+				["data"] = kvp.Value.text,
+				["sortType"] = kvp.Value.sortType.ToString(),
+			}).ToList();
 		}
 		public override void LoadWorldData(TagCompound tag) {
-			tileEntities = tag.SafeGet<List<Point16>>($"{nameof(tileEntities)}_key").Zip(tag.SafeGet<List<string>>($"{nameof(tileEntities)}_value").Select(t => new DemoBoxContents(t))).ToDictionary();
+			tileEntities = tag
+				.SafeGet<List<TagCompound>>($"{nameof(tileEntities)}", [])
+				.Select(t => (t.SafeGet<Point16>("key"), new DemoBoxContents(t.SafeGet("data", string.Empty), Enum.TryParse(t.SafeGet("sortType", string.Empty), out SortType sortType) ? sortType : SortType.ID)))
+				.ToDictionary();
 		}
 	}
-	public class DemoBoxContents(string text) {
+	public class DemoBoxContents(string text, SortType sortType) {
 		public readonly string text = text ?? string.Empty;
+		public readonly SortType sortType = sortType;
 		List<Item> items;
+		public DemoBoxContents() : this(null, SortType.ID) { }
 		public List<Item> GetItems() {
 			if (items is null) {
 				items = [];
@@ -123,8 +133,21 @@ namespace ModDemoUtils {
 				for (int i = ItemID.Count; i < ItemLoader.ItemCount; i++) {
 					if (instance.stats.TryGetValue(i, out JObject stats) && filter.Matches(stats)) items.Add(ContentSamples.ItemsByType[i]);
 				}
+				switch (sortType) {
+					case SortType.Rarity:
+					items.Sort((a, b) => a.rare - b.rare);
+					break;
+					case SortType.Damage:
+					items.Sort((a, b) => a.damage - b.damage);
+					break;
+				}
 			}
 			return items;
+		}
+		public enum SortType : byte{
+			ID,
+			Rarity,
+			Damage
 		}
 		public static Filter CreateFilter(string text) {
 			return CreateFilter(text.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
