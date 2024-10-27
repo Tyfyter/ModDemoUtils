@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
@@ -17,10 +19,14 @@ namespace ModDemoUtils {
 	public class ModDemoUtils : Mod {
 		public Dictionary<int, JObject> stats = [];
 		internal Dictionary<Mod, Func<Item, JObject>> statProviders = [];
+		internal Dictionary<string, List<(string name, string url)>> demos = [];
 		public override object Call(params object[] args) {
 			switch (((string)args[0]).ToUpperInvariant()) {
 				case "ADDSTATPROVIDER":
 				statProviders.Add((Mod)args[1], (Func<Item, JObject>)args[2]);
+				break;
+				case "REGISTERDEMO":
+				ModContent.GetInstance<DemoWorldDownloader>().ProcessDemoCall((Mod)args[1], (string)args[2]);
 				break;
 			}
 			return null;

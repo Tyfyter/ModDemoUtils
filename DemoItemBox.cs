@@ -93,7 +93,7 @@ namespace ModDemoUtils {
 				packet.Send();
 			}
 		}
-		public static void UpdateTileEntity(Point16 pos, string data, SortType sortType) {
+		public static void UpdateTileEntity(Point16 pos, string data, SortType sortType, int toPlayer = -1) {
 			if (Main.netMode == NetmodeID.SinglePlayer) {
 				ModContent.GetInstance<DemoItemBoxSystem>().tileEntities[pos] = new(data, sortType);
 			} else {
@@ -108,7 +108,7 @@ namespace ModDemoUtils {
 		}
 		public void SyncToPlayer(int player) {
 			foreach (var item in tileEntities) {
-				UpdateTileEntity(item.Key, item.Value.text, item.Value.sortType);
+				UpdateTileEntity(item.Key, item.Value.text, item.Value.sortType, player);
 			}
 		}
 		public override void SaveWorldData(TagCompound tag) {
