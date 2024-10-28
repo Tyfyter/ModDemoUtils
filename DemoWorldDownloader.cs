@@ -32,11 +32,13 @@ namespace ModDemoUtils {
 			string cachePath = Path.Combine(baseCachePath, mod.Name);
 			Directory.CreateDirectory(cachePath);
 			string versionFile = Path.Combine(cachePath, "version");
-			string pathFile = Path.Combine(cachePath, "path");
+			string pathFile = Path.Combine(cachePath, "download_path");
 			if (File.Exists(versionFile) && File.ReadAllText(versionFile) == mod.Version.ToString()) {
-				DemoDownloadData data = !File.Exists(pathFile) ? DemoDownloadData.Downloaded : DemoDownloadData.From(File.ReadAllText(pathFile)); 
+				DemoDownloadData data = File.Exists(pathFile) ? DemoDownloadData.From(File.ReadAllText(pathFile)) : DemoDownloadData.Downloaded;
 				ModContent.GetInstance<ModDemoUtils>().demos.Add(mod.Name, data);
 			} else {
+				Directory.Delete(cachePath);
+				Directory.CreateDirectory(cachePath);
 				client.SendAsync(new HttpRequestMessage(HttpMethod.Get, new Uri($"https://api.github.com/repos/{path}/releases")).WithUserAgent())
 				.ContinueWith(async task => {
 					task.Result.EnsureSuccessStatusCode();
@@ -197,6 +199,7 @@ namespace ModDemoUtils {
 				using (ZipFile zipped = ZipFile.Read(download.Result.Content.ReadAsStream())) {
 					zipped.ExtractAll(cachePath);
 				}
+				File.Delete(Path.Combine(cachePath, "download_path"));
 			});
 		}
 	}
