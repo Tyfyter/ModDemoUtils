@@ -19,7 +19,7 @@ namespace ModDemoUtils {
 	public class ModDemoUtils : Mod {
 		public Dictionary<int, JObject> stats = [];
 		internal Dictionary<Mod, Func<Item, JObject>> statProviders = [];
-		internal Dictionary<string, List<(string name, string url)>> demos = [];
+		internal Dictionary<string, DemoDownloadData> demos = [];
 		public override object Call(params object[] args) {
 			switch (((string)args[0]).ToUpperInvariant()) {
 				case "ADDSTATPROVIDER":
