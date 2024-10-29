@@ -9,4 +9,26 @@ Items: {
 		DisplayName: Greend Design
 		Tooltip: ""
 	}
+
+	Guide_Block_Item: {
+		DisplayName: Guide Block
+		Tooltip: ""
+	}
+
+	Guide_Lens: {
+		DisplayName: Guide Lens
+		Tooltip: ""
+	}
+
+	Waypoint_Block_Item: {
+		DisplayName: Waypoint Block Item
+		Tooltip: ""
+	}
+}
+
+InfoDisplays: {
+	Guide_Lens_Info: {
+		DisplayName: Show Guide Blocks
+		Display: Showing Guide Blocks
+	}
 }

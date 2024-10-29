@@ -46,8 +46,7 @@ namespace ModDemoUtils {
 						HttpResponseMessage response = client.Send(new HttpRequestMessage(HttpMethod.Get, release["assets_url"].ToString()).WithUserAgent());
 						response.EnsureSuccessStatusCode();
 						foreach (JObject artifact in JArray.Parse(await response.Content.ReadAsStringAsync()).Where(r => r is JObject).Cast<JObject>()) {
-							string artifactName = artifact["name"].ToString();
-							if (artifactName == "ModDemoUtils_Demos.zip") {
+							if (artifact["name"].ToString() == "ModDemoUtils_Demos.zip") {
 								string path = artifact["browser_download_url"].ToString();
 								ModContent.GetInstance<ModDemoUtils>().demos.Add(mod.Name, DemoDownloadData.From(path));
 								File.WriteAllText(pathFile, path);

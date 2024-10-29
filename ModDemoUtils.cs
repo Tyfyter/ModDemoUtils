@@ -84,12 +84,36 @@ namespace ModDemoUtils {
 					if (Main.netMode != NetmodeID.MultiplayerClient) DemoItemBoxSystem.UpdateTileEntity(pos, data, sortType);
 					break;
 				}
+
+				case NetMessageType.PlaceWaypoint: {
+					Point16 pos = new(reader.ReadInt16(), reader.ReadInt16());
+					ModContent.GetInstance<WaypointSystem>().tileEntities.Add(pos);
+					if (Main.netMode != NetmodeID.MultiplayerClient) WaypointSystem.AddTileEntity(pos);
+					break;
+				}
+				case NetMessageType.RemoveWaypoint: {
+					Point16 pos = new(reader.ReadInt16(), reader.ReadInt16());
+					ModContent.GetInstance<WaypointSystem>().tileEntities.Remove(pos);
+					if (Main.netMode != NetmodeID.MultiplayerClient) WaypointSystem.RemoveTileEntity(pos);
+					break;
+				}
+				case NetMessageType.SyncWaypoints: {
+					HashSet<Point16> tileEntities = ModContent.GetInstance<WaypointSystem>().tileEntities;
+					short length = reader.ReadInt16();
+					for (int i = 0; i < length; i++) {
+						tileEntities.Add(new(reader.ReadInt16(), reader.ReadInt16()));
+					}
+					break;
+				}
 			}
 		}
 		public enum NetMessageType : byte {
 			PlaceDemoBox,
 			RemoveDemoBox,
 			UpdateDemoBox,
+			PlaceWaypoint,
+			RemoveWaypoint,
+			SyncWaypoints,
 		}
 	}
 	public class DemoSyncPlayer : ModPlayer {
@@ -101,6 +125,7 @@ namespace ModDemoUtils {
 					Mod.Logger.Info($"NetInit {netInitialized}, {Player.name}, dummyInitialize: {dummyInitialize}");
 					netInitialized = dummyInitialize;
 					ModContent.GetInstance<DemoItemBoxSystem>().SyncToPlayer(Player.whoAmI);
+					ModContent.GetInstance<WaypointSystem>().SyncToPlayer(Player.whoAmI);
 				}
 				if (!dummyInitialize) dummyInitialize = true;
 			}
