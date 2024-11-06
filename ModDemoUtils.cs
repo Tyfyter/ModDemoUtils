@@ -41,7 +41,7 @@ namespace ModDemoUtils {
 			IL_ItemSlot.OverrideHover_ItemArray_int_int += IL_ItemSlot_OverrideHover_ItemArray_int_int;
 			IL_ItemSlot.LeftClick_SellOrTrash += IL_ItemSlot_LeftClick_SellOrTrash;
 			Call("ADDSTATPROVIDER", this, (Item item) => new JObject() {
-				["Name"] = item.ModItem.Name,
+				["InternalName"] = item.ModItem.Name,
 			});
 			/*if (ModLoader.TryGetMod("Origins", out Mod origins)) {
 				setLastPacketType = PegasusLib.PegasusLib.Compile<Action<byte>>("setLastPacketType",
