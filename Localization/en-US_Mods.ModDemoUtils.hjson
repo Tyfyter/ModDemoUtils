@@ -5,8 +5,8 @@ DemoItemBox: {
 }
 
 Items: {
-	GreendDesign: {
-		DisplayName: Greend Design
+	Greend_Design: {
+		DisplayName: Demo Config Tool
 		Tooltip: ""
 	}
 
@@ -17,7 +17,11 @@ Items: {
 
 	Guide_Lens: {
 		DisplayName: Guide Lens
-		Tooltip: ""
+		Tooltip:
+			'''
+			Displays guide blocks when held
+			Toggle in your info accessories to display them while not held as well
+			'''
 	}
 
 	Waypoint_Block_Item: {

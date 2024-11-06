@@ -3,7 +3,8 @@ This mod allows other modders to set up worlds to demonstrate features of their 
 How to use:
 
 As a player:
-Simply enable this mod alongside another mod which uses it, and open that mod's demo worlds through the in-game mods menu
+Simply enable this mod alongside another mod which uses it, and open that mod's demo worlds through the in-game mods menu;
+If a demo provides a Guide Lens, it can be used to see Guide Blocks - which may mark paths or points of interest - by holding it or enabling it in your info accessories
 
 As a mod developer:
 See https://github.com/Tyfyter/ModDemoUtils/blob/master/README.md

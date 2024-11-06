@@ -8,7 +8,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace ModDemoUtils {
-	public class GreendDesign : ModItem {
+	public class Greend_Design : ModItem {
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.WireKite);
 			Item.shoot = ProjectileID.None;

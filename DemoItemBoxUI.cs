@@ -305,6 +305,9 @@ namespace ModDemoUtils {
 			scrollbar.Height.Set(-20, 1);
 			scrollbar.SetView(56 * 4, MathF.Ceiling(items.Count / 10f) * 56);
 			Append(scrollbar);
+			scrollbar.OnUpdate += element => {
+				if (element.IsMouseHovering) Main.LocalPlayer.mouseInterface = true;
+			};
 		}
 		protected override void DrawSelf(SpriteBatch spriteBatch) {
 			float inventoryScale = Main.inventoryScale;

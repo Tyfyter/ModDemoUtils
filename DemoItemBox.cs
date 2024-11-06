@@ -24,7 +24,7 @@ namespace ModDemoUtils {
 			int style = TileObjectData.GetTileStyle(Main.tile[i, j]);
 			if (style < 0) return;
 			TileUtils.GetMultiTileTopLeft(i, j, TileObjectData.GetTileData(type, style), out int x, out int y);
-			if (Main.LocalPlayer.HeldItem.type == ModContent.ItemType<GreendDesign>()) {
+			if (Main.LocalPlayer.HeldItem.type == ModContent.ItemType<Greend_Design>()) {
 				Main.LocalPlayer.SetTalkNPC(-1);
 				Main.npcChatCornerItem = 0;
 				SoundEngine.PlaySound(SoundID.MenuOpen);
@@ -53,7 +53,7 @@ namespace ModDemoUtils {
 			itemBoxUI.Update(gameTime);
 		}
 		public override bool HijackSendData(int whoAmI, int msgType, int remoteClient, int ignoreClient, NetworkText text, int number, float number2, float number3, float number4, int number5, int number6, int number7) {
-			if (msgType == MessageID.RequestChestOpen && Main.LocalPlayer.HeldItem.type == ModContent.ItemType<GreendDesign>() || ModContent.GetInstance<DemoItemBoxSystem>().tileEntities.ContainsKey(new((short)number, (short)number2))) {
+			if (msgType == MessageID.RequestChestOpen && Main.LocalPlayer.HeldItem.type == ModContent.ItemType<Greend_Design>() || ModContent.GetInstance<DemoItemBoxSystem>().tileEntities.ContainsKey(new((short)number, (short)number2))) {
 				return true;
 			}
 			return false;
