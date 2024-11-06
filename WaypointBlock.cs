@@ -157,7 +157,7 @@ namespace ModDemoUtils {
 		}
 		public void SyncToPlayer(int player) {
 			ModPacket packet = ModContent.GetInstance<ModDemoUtils>().GetPacket();
-			packet.Write((byte)ModDemoUtils.NetMessageType.PlaceWaypoint);
+			packet.Write((byte)ModDemoUtils.NetMessageType.SyncWaypoints);
 			packet.Write((short)tileEntities.Count);
 			foreach (Point16 pos in tileEntities) {
 				packet.Write((short)pos.X);

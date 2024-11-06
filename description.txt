@@ -1,1 +1,9 @@
-Modify this file with a description of your mod.
+This mod allows other modders to set up worlds to demonstrate features of their mods or serve as tutorials, and provides helpful items and blocks for such worlds
+
+How to use:
+
+As a player:
+Simply enable this mod alongside another mod which uses it, and open that mod's demo worlds through the in-game mods menu
+
+As a mod developer:
+See https://github.com/Tyfyter/ModDemoUtils/blob/master/README.md

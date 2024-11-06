@@ -2,3 +2,5 @@ displayName = Mod Demo Utilities
 author = Moonlight Glint
 version = 1.0
 modReferences = PegasusLib
+
+homepage = https://github.com/Tyfyter/ModDemoUtils

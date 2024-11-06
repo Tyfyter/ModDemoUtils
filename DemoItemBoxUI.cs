@@ -11,12 +11,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Elements;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using Terraria.ModLoader.UI;
 using Terraria.UI;
 
@@ -317,9 +319,29 @@ namespace ModDemoUtils {
 					Item item = slot >= items.Count ? new() : items[slot].Clone();
 					if (!PlayerInput.IgnoreMouseInterface && Utils.FloatIntersect(Main.mouseX, Main.mouseY, 0f, 0f, xPos, yPos, TextureAssets.InventoryBack.Width() * Main.inventoryScale, TextureAssets.InventoryBack.Height() * Main.inventoryScale)) {
 						player.mouseInterface = true;
-						//ItemSlot.OverrideHover(ref item, ItemSlot.Context.ChestItem);
-						ItemSlot.LeftClick(ref item, ItemSlot.Context.ChestItem);
-						//ItemSlot.RightClick(ref item, ItemSlot.Context.ChestItem);
+						ItemSlot.OverrideHover(ref item, ItemSlot.Context.ChestItem);
+						bool isLeft = Main.mouseLeftRelease && Main.mouseLeft;
+						if (!player.ItemAnimationActive && (isLeft || (Main.mouseRightRelease && Main.mouseRight))) {
+							bool didSomething = false;
+							if (Main.cursorOverride == 8) {
+								Item newItem = item.Clone();
+								if (isLeft) newItem.stack = newItem.maxStack;
+								newItem.OnCreated(new JourneyDuplicationItemCreationContext());
+								Main.LocalPlayer.GetItem(Main.myPlayer, newItem, new GetItemSettings(StepAfterHandlingSlotNormally: static item => item.newAndShiny = true));
+								didSomething = true;
+							} else if (Main.mouseItem?.IsAir ?? true) {
+								Main.mouseItem = item.Clone();
+								if (isLeft) Main.mouseItem.stack = Main.mouseItem.maxStack;
+								Main.mouseItem.OnCreated(new JourneyDuplicationItemCreationContext());
+								didSomething = true;
+							} else if (Main.mouseItem.type == item.type && Main.mouseItem.stack < Main.mouseItem.maxStack && ItemLoader.TryStackItems(Main.mouseItem, item, out _, true)) {
+								didSomething = true;
+							}
+							if (didSomething) {
+								Recipe.FindRecipes();
+								SoundEngine.PlaySound(SoundID.Grab);
+							}
+						}
 						ItemSlot.MouseHover(ref item, ItemSlot.Context.ChestItem);
 					}
 					ItemSlot.Draw(spriteBatch, ref item, ItemSlot.Context.GoldDebug, new Vector2(xPos, yPos));//slot >= items.Count ? ItemSlot.Context.VoidItem : 

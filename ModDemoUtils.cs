@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection.Emit;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
@@ -20,6 +22,7 @@ namespace ModDemoUtils {
 		public Dictionary<int, JObject> stats = [];
 		internal Dictionary<Mod, Func<Item, JObject>> statProviders = [];
 		internal Dictionary<string, DemoDownloadData> demos = [];
+		Action<byte> setLastPacketType = _ => { };
 		public override object Call(params object[] args) {
 			switch (((string)args[0]).ToUpperInvariant()) {
 				case "ADDSTATPROVIDER":
@@ -35,6 +38,57 @@ namespace ModDemoUtils {
 			On_ItemSorting.SetupWhiteLists += On_ItemSorting_SetupWhiteLists;
 			IL_ChestUI.Draw += IL_ChestUI_Draw;
 			On_Recipe.FindRecipes += On_Recipe_FindRecipes;
+			IL_ItemSlot.OverrideHover_ItemArray_int_int += IL_ItemSlot_OverrideHover_ItemArray_int_int;
+			IL_ItemSlot.LeftClick_SellOrTrash += IL_ItemSlot_LeftClick_SellOrTrash;
+			/*if (ModLoader.TryGetMod("Origins", out Mod origins)) {
+				setLastPacketType = PegasusLib.PegasusLib.Compile<Action<byte>>("setLastPacketType",
+					(OpCodes.Ldarg_0, null),
+					(OpCodes.Stsfld, origins.GetType().GetField("lastPacketType", BindingFlags.NonPublic | BindingFlags.Static)),
+					(OpCodes.Ret, null)
+				);
+			} else {
+				setLastPacketType = _ => { };
+			}*/
+		}
+
+		private void IL_ItemSlot_LeftClick_SellOrTrash(ILContext il) {
+			ILCursor c = new(il);
+			while (c.TryGotoNext(MoveType.After,
+				i => i.MatchLdsfld<Main>(nameof(Main.player)),
+				i => i.MatchLdsfld<Main>(nameof(Main.myPlayer)),
+				i => i.MatchLdelemRef(),
+				i => i.MatchLdfld<Player>(nameof(Player.chest)),
+				i => i.MatchLdcI4(-1),
+				i => i.MatchCeq()
+			)) {
+				c.EmitLdsfld(typeof(Main).GetField(nameof(Main.player)));
+				c.EmitLdsfld(typeof(Main).GetField(nameof(Main.myPlayer)));
+				c.EmitLdelemRef();
+				c.EmitLdfld(typeof(Player).GetField(nameof(Player.chest)));
+				c.EmitLdcI4(-6);
+				c.EmitCeq();
+				c.EmitOr();
+			}
+		}
+
+		private static void IL_ItemSlot_OverrideHover_ItemArray_int_int(ILContext il) {
+			ILCursor c = new(il);
+			ILLabel label = default;
+			while (c.TryGotoNext(MoveType.After,
+				i => i.MatchLdsfld<Main>(nameof(Main.player)),
+				i => i.MatchLdsfld<Main>(nameof(Main.myPlayer)),
+				i => i.MatchLdelemRef(),
+				i => i.MatchLdfld<Player>(nameof(Player.chest)),
+				i => i.MatchLdcI4(-1),
+				i => i.MatchBeq(out label)
+			)) {
+				c.EmitLdsfld(typeof(Main).GetField(nameof(Main.player)));
+				c.EmitLdsfld(typeof(Main).GetField(nameof(Main.myPlayer)));
+				c.EmitLdelemRef();
+				c.EmitLdfld(typeof(Player).GetField(nameof(Player.chest)));
+				c.EmitLdcI4(-6);
+				c.EmitBeq(label);
+			}
 		}
 		private static void On_ItemSorting_SetupWhiteLists(On_ItemSorting.orig_SetupWhiteLists orig) {
 			orig();
@@ -63,7 +117,9 @@ namespace ModDemoUtils {
 			if (Main.LocalPlayer.chest != -6) orig(canDelayCheck);
 		}
 		public override void HandlePacket(BinaryReader reader, int whoAmI) {
-			switch ((NetMessageType)reader.ReadByte()) {
+			byte type = reader.ReadByte();
+			//setLastPacketType(type);
+			switch ((NetMessageType)type) {
 				case NetMessageType.PlaceDemoBox: {
 					Point16 pos = new(reader.ReadInt16(), reader.ReadInt16());
 					ModContent.GetInstance<DemoItemBoxSystem>().tileEntities.Add(pos, new());

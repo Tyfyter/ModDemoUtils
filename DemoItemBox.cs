@@ -15,6 +15,7 @@ using Terraria.ModLoader.IO;
 using Newtonsoft.Json.Linq;
 using Microsoft.Xna.Framework;
 using static ModDemoUtils.DemoBoxContents;
+using Terraria.Localization;
 
 namespace ModDemoUtils {
 	public class DemoItemBox : GlobalTile {
@@ -22,7 +23,7 @@ namespace ModDemoUtils {
 			if (!Main.tileFrameImportant[type] || !Main.tileContainer[type]) return;
 			int style = TileObjectData.GetTileStyle(Main.tile[i, j]);
 			if (style < 0) return;
-			PegasusLib.PegasusLib.GetMultiTileTopLeft(i, j, TileObjectData.GetTileData(type, style), out int x, out int y);
+			TileUtils.GetMultiTileTopLeft(i, j, TileObjectData.GetTileData(type, style), out int x, out int y);
 			if (Main.LocalPlayer.HeldItem.type == ModContent.ItemType<GreendDesign>()) {
 				Main.LocalPlayer.SetTalkNPC(-1);
 				Main.npcChatCornerItem = 0;
@@ -36,8 +37,11 @@ namespace ModDemoUtils {
 				Main.npcChatText = "";
 				Main.ClosePlayerChat();
 				Main.chatText = "";
+				Main.LocalPlayer.chestX = x;
+				Main.LocalPlayer.chestY = y;
 				ModContent.GetInstance<DemoItemBoxSystem>().itemBoxUI.SetState(new DemoItemBoxUI((short)x, (short)y));
 			}
+			Mod.Logger.Info(string.Join(", ", ModContent.GetInstance<DemoItemBoxSystem>().tileEntities));
 		}
 	}
 	public class DemoItemBoxSystem : ModSystem {
@@ -47,6 +51,12 @@ namespace ModDemoUtils {
 				itemBoxUI.SetState(null);
 			}
 			itemBoxUI.Update(gameTime);
+		}
+		public override bool HijackSendData(int whoAmI, int msgType, int remoteClient, int ignoreClient, NetworkText text, int number, float number2, float number3, float number4, int number5, int number6, int number7) {
+			if (msgType == MessageID.RequestChestOpen && Main.LocalPlayer.HeldItem.type == ModContent.ItemType<GreendDesign>() || ModContent.GetInstance<DemoItemBoxSystem>().tileEntities.ContainsKey(new((short)number, (short)number2))) {
+				return true;
+			}
+			return false;
 		}
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
 			int inventoryIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Inventory"));
